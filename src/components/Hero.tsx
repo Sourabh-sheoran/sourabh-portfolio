@@ -160,7 +160,7 @@ export const Hero: React.FC<HeroProps> = ({ onPlaySuccess, onPlayClick }) => {
           </div>
         </motion.div>
 
-        {/* Right Profile Avatar Card */}
+        {/* Right Profile Avatar Card with User Cropped Photo */}
         <motion.div
           className="lg:col-span-5 flex justify-center z-10"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -168,17 +168,19 @@ export const Hero: React.FC<HeroProps> = ({ onPlaySuccess, onPlayClick }) => {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="relative group w-full max-w-sm">
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 opacity-70 blur-xl group-hover:opacity-100 transition duration-500 animate-pulse" />
+            <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 opacity-75 blur-xl group-hover:opacity-100 transition duration-500 animate-pulse" />
 
             <div className="relative rounded-3xl glass-panel p-6 border border-white/15 backdrop-blur-2xl bg-slate-950/80 shadow-2xl flex flex-col items-center text-center">
-              <div className="relative w-36 h-36 rounded-2xl p-1 bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 shadow-xl mb-4">
-                <div className="w-full h-full rounded-[14px] bg-slate-900 flex flex-col items-center justify-center p-3 text-indigo-400 overflow-hidden relative group-hover:scale-[1.02] transition-transform">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-3xl font-bold font-mono shadow-inner mb-1">
-                    S
-                  </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                    Frontend & AI Lead
-                  </span>
+              
+              {/* Profile Avatar Frame with User Photo */}
+              <div className="relative w-44 h-44 rounded-2xl p-1 bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 shadow-2xl mb-4">
+                <div className="w-full h-full rounded-[14px] bg-slate-900 overflow-hidden relative group-hover:scale-[1.02] transition-transform shadow-inner">
+                  <img
+                    src="/sourabh.jpg"
+                    alt="Sourabh Sheoran"
+                    className="w-full h-full object-cover object-top"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
                 </div>
               </div>
 
