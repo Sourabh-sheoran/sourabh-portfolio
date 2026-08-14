@@ -90,7 +90,7 @@ ${message}
         });
 
         await transporter.sendMail({
-          from: `"${name} (Portfolio)" <${smtpUser}>`,
+          from: `"${name} (Portfolio Inquiry)" <sourabhsheoran.portfolio@gmail.com>`,
           replyTo: email,
           to: recipientEmail,
           subject: emailSubject,
