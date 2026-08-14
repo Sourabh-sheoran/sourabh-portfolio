@@ -42,13 +42,29 @@ export const Contact: React.FC<ContactProps> = ({ onPlaySuccess, onPlayClick }) 
     setErrorMsg(null);
 
     try {
-      await fetch('/api/contact', {
+      // 1. Save message to persistent Admin Panel database
+      fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
-      });
+      }).catch(() => {});
+
+      // 2. Dispatch instant email notification directly to sourabhsheoran695@gmail.com inbox
+      const formPayload = new URLSearchParams();
+      formPayload.append('name', formData.name);
+      formPayload.append('email', formData.email);
+      formPayload.append('subject', formData.subject || 'New Portfolio Inquiry');
+      formPayload.append('message', formData.message);
+      formPayload.append('_template', 'table');
+      formPayload.append('_captcha', 'false');
+
+      await fetch('https://formsubmit.co/ajax/sourabhsheoran695@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formPayload.toString()
+      }).catch(() => {});
     } catch (err) {
-      // Ignore network/serverless format errors
+      // Catch any network errors gracefully
     } finally {
       setLoading(false);
       setSubmitted(true);
