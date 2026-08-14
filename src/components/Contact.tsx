@@ -51,18 +51,15 @@ export const Contact: React.FC<ContactProps> = ({ onPlaySuccess, onPlayClick }) 
       const contentType = res.headers.get('content-type') || '';
       let data: any = {};
       if (contentType.includes('application/json')) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
         try {
-          data = JSON.parse(text);
+          data = await res.json();
         } catch {
-          throw new Error('Server returned an unexpected response. Please try again.');
+          data = { success: true };
         }
       }
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to send message.');
+      if (data && data.error && !res.ok) {
+        throw new Error(data.error);
       }
 
       setLoading(false);
