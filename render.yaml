@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: sourabh-portfolio
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_EMAIL
+        value: sourabhsheoran695@gmail.com
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: JWT_SECRET
+        value: sourabh_portfolio_super_secret_jwt_key_2026
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: sourabhsheoran695@gmail.com
+      - key: SMTP_PASS
+        value: yxfauxswyxdaepph
