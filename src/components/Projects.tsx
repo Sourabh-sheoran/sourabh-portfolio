@@ -9,24 +9,26 @@ import {
   Maximize2,
   Zap
 } from 'lucide-react';
-import { RESUME_DATA } from '../data/resumeData';
 import type { Project } from '../data/resumeData';
 import { GithubIcon } from './Icons';
+import { usePortfolio } from '../context/PortfolioContext';
 
 interface ProjectsProps {
   onPlayClick: () => void;
 }
 
 export const Projects: React.FC<ProjectsProps> = ({ onPlayClick }) => {
+  const { projects } = usePortfolio();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [showCodeId, setShowCodeId] = useState<string | null>(null);
 
-  const categories = ['All', 'Full Stack', 'AI & Data'];
+  const categories = ['All', 'Full Stack', 'AI & Data', 'Web Apps'];
 
   const filteredProjects = activeCategory === 'All'
-    ? RESUME_DATA.projects
-    : RESUME_DATA.projects.filter(p => p.category === activeCategory);
+    ? projects
+    : projects.filter(p => p.category === activeCategory);
+
 
   return (
     <section id="projects" className="py-24 relative px-4 z-10">

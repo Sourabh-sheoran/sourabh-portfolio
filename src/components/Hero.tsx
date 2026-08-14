@@ -11,6 +11,7 @@ import {
 import confetti from 'canvas-confetti';
 import { RESUME_DATA } from '../data/resumeData';
 import { GithubIcon, LinkedinIcon } from './Icons';
+import { usePortfolio } from '../context/PortfolioContext';
 
 interface HeroProps {
   onPlaySuccess: () => void;
@@ -18,6 +19,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onPlaySuccess, onPlayClick }) => {
+  const { profilePicUrl, resumeUrl } = usePortfolio();
   const [roleIndex, setRoleIndex] = useState(0);
 
   useEffect(() => {
@@ -34,8 +36,9 @@ export const Hero: React.FC<HeroProps> = ({ onPlaySuccess, onPlayClick }) => {
       spread: 70,
       origin: { y: 0.6 }
     });
-    window.open('https://github.com/Sourabh-sheoran/Portfolio', '_blank');
+    window.open(resumeUrl || 'https://github.com/Sourabh-sheoran/Portfolio', '_blank');
   };
+
 
   return (
     <section id="hero" className="min-h-screen relative pt-32 pb-20 flex items-center justify-center px-4 overflow-hidden">
@@ -176,7 +179,7 @@ export const Hero: React.FC<HeroProps> = ({ onPlaySuccess, onPlayClick }) => {
               <div className="relative w-44 h-44 rounded-2xl p-1 bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 shadow-2xl mb-4">
                 <div className="w-full h-full rounded-[14px] bg-slate-900 overflow-hidden relative group-hover:scale-[1.02] transition-transform shadow-inner">
                   <img
-                    src="/sourabh.jpg"
+                    src={profilePicUrl || "/sourabh.jpg"}
                     alt="Sourabh Sheoran"
                     className="w-full h-full object-cover object-top"
                   />

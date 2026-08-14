@@ -27,3 +27,12 @@ pnpm-debug.log*
 
 # Vercel
 .vercel
+
+# Secrets & Uploads
+.env
+.env.*
+public/uploads/*
+!public/uploads/.gitkeep
+server/data/*
+!server/data/.gitkeep
+

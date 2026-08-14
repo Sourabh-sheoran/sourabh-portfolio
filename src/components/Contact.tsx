@@ -31,14 +31,28 @@ export const Contact: React.FC<ContactProps> = ({ onPlaySuccess, onPlayClick }) 
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
 
     onPlayClick();
     setLoading(true);
+    setErrorMsg(null);
 
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send message.');
+      }
+
       setLoading(false);
       setSubmitted(true);
       onPlaySuccess();
@@ -47,7 +61,10 @@ export const Contact: React.FC<ContactProps> = ({ onPlaySuccess, onPlayClick }) 
         spread: 80,
         origin: { y: 0.6 }
       });
-    }, 800);
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMsg(err.message || 'Error sending message. Please try again.');
+    }
   };
 
   return (
@@ -177,6 +194,12 @@ export const Contact: React.FC<ContactProps> = ({ onPlaySuccess, onPlayClick }) 
                   <span className="text-xs font-mono text-slate-400">Response time: &lt; 24 hours</span>
                 </div>
               </div>
+
+              {errorMsg && (
+                <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono">
+                  {errorMsg}
+                </div>
+              )}
 
               {submitted ? (
                 <motion.div

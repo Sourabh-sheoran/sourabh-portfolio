@@ -80,13 +80,22 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500">
           <p>© {new Date().getFullYear()} SOURABH. Built with React, TypeScript, Tailwind CSS & Framer Motion.</p>
           
-          <button
-            onClick={scrollToTop}
-            className="px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-cyan-400 flex items-center gap-1.5 transition-colors"
-          >
-            <span>Back to Top</span>
-            <ArrowUp className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center space-x-4">
+            <a
+              href="/admin/login"
+              className="text-slate-400 hover:text-cyan-400 transition-colors underline"
+            >
+              Admin Portal
+            </a>
+
+            <button
+              onClick={scrollToTop}
+              className="px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-cyan-400 flex items-center gap-1.5 transition-colors"
+            >
+              <span>Back to Top</span>
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
       </div>
