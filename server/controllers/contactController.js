@@ -68,32 +68,39 @@ ${message}
     console.log(textContent);
     console.log('--------------------------------------------------\n');
 
-    const smtpHost = process.env.SMTP_HOST;
+    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
     const smtpPort = process.env.SMTP_PORT || 587;
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    const smtpUser = process.env.SMTP_USER || 'sourabhsheoran695@gmail.com';
+    const smtpPass = process.env.SMTP_PASS || 'yxfauxswyxdaepph';
 
     if (smtpHost && smtpUser && smtpPass) {
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: Number(smtpPort),
-        secure: Number(smtpPort) === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass
-        }
-      });
+      try {
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: Number(smtpPort),
+          secure: Number(smtpPort) === 465,
+          auth: {
+            user: smtpUser,
+            pass: smtpPass
+          },
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 10000
+        });
 
-      await transporter.sendMail({
-        from: `"${name} (Portfolio)" <${smtpUser}>`,
-        replyTo: email,
-        to: recipientEmail,
-        subject: emailSubject,
-        text: textContent,
-        html: htmlContent
-      });
+        await transporter.sendMail({
+          from: `"${name} (Portfolio)" <${smtpUser}>`,
+          replyTo: email,
+          to: recipientEmail,
+          subject: emailSubject,
+          text: textContent,
+          html: htmlContent
+        });
 
-      console.log(`✅ Email successfully dispatched via Nodemailer to ${recipientEmail}`);
+        console.log(`✅ Email successfully dispatched via Nodemailer to ${recipientEmail}`);
+      } catch (mailErr) {
+        console.error('Nodemailer dispatch error:', mailErr.message);
+      }
     } else {
       console.log('⚠️ SMTP credentials (SMTP_HOST, SMTP_USER, SMTP_PASS) not fully set in .env.');
       console.log('Message logged locally to console. Set SMTP credentials in .env to receive live email inbox dispatches.');
