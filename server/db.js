@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'server', 'data', 'db.json');
+// On Vercel, server/data/db.json is read-only. Use /tmp/db.json for temporary writes if running on Vercel.
+const isVercel = !!process.env.VERCEL;
+const localDbPath = path.join(process.cwd(), 'server', 'data', 'db.json');
+const tmpDbPath = path.join('/tmp', 'db.json');
 
 const initialProjects = [
   {
@@ -60,47 +63,55 @@ const initialProjects = [
   }
 ];
 
+const getDefaultData = () => ({
+  admin: {
+    email: (process.env.ADMIN_EMAIL || 'sourabhsheoran695@gmail.com').toLowerCase(),
+    passwordHash: '$2b$10$zUgw0Hf0zDRLwbuuPwYhU.T8ZveWg8mS2OvAD/iVPIZ2Ji859QqTO'
+  },
+  content: {
+    profilePicUrl: '/sourabh.jpg',
+    resumeUrl: 'https://github.com/Sourabh-sheoran/Portfolio',
+    projects: initialProjects
+  },
+  messages: []
+});
+
+let inMemoryData = null;
+
 export const getDbData = () => {
-  if (!fs.existsSync(dbPath)) {
-    const dir = path.dirname(dbPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    const defaultData = {
-      admin: {
-        email: process.env.ADMIN_EMAIL || 'sourabhsheoran695@gmail.com',
-        // default fallback bcrypt hash for password "admin123" if not seeded yet
-        passwordHash: '$2a$10$wU.a5XQhU1d2R7d2a5S0.O/P91s0bW2rLzZ9P0eQ.2k/8xM9o.O2u'
-      },
-      content: {
-        profilePicUrl: '/sourabh.jpg',
-        resumeUrl: 'https://github.com/Sourabh-sheoran/Portfolio',
-        projects: initialProjects
-      }
-    };
-    fs.writeFileSync(dbPath, JSON.stringify(defaultData, null, 2));
-    return defaultData;
+  if (inMemoryData) return inMemoryData;
+
+  const targetPath = isVercel && fs.existsSync(tmpDbPath) ? tmpDbPath : localDbPath;
+
+  if (!fs.existsSync(targetPath)) {
+    inMemoryData = getDefaultData();
+    return inMemoryData;
   }
 
   try {
-    const content = fs.readFileSync(dbPath, 'utf8');
+    const content = fs.readFileSync(targetPath, 'utf8');
     const parsed = JSON.parse(content);
     if (!parsed.messages) parsed.messages = [];
+    inMemoryData = parsed;
     return parsed;
   } catch (err) {
     console.error('Error reading db.json:', err);
-    return {
-      admin: {},
-      content: { profilePicUrl: '/sourabh.jpg', resumeUrl: '', projects: [] },
-      messages: []
-    };
+    inMemoryData = getDefaultData();
+    return inMemoryData;
   }
 };
 
 export const saveDbData = (data) => {
-  const dir = path.dirname(dbPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  inMemoryData = data;
+
+  try {
+    const targetPath = isVercel ? tmpDbPath : localDbPath;
+    const dir = path.dirname(targetPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(targetPath, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.warn('Could not write db.json to disk (read-only environment):', err.message);
   }
-  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 };
