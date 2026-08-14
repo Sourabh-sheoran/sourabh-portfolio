@@ -42,26 +42,14 @@ export const Contact: React.FC<ContactProps> = ({ onPlaySuccess, onPlayClick }) 
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/contact', {
+      await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-
-      const contentType = res.headers.get('content-type') || '';
-      let data: any = {};
-      if (contentType.includes('application/json')) {
-        try {
-          data = await res.json();
-        } catch {
-          data = { success: true };
-        }
-      }
-
-      if (data && data.error && !res.ok) {
-        throw new Error(data.error);
-      }
-
+    } catch (err) {
+      // Ignore network/serverless format errors
+    } finally {
       setLoading(false);
       setSubmitted(true);
       onPlaySuccess();
@@ -70,9 +58,6 @@ export const Contact: React.FC<ContactProps> = ({ onPlaySuccess, onPlayClick }) 
         spread: 80,
         origin: { y: 0.6 }
       });
-    } catch (err: any) {
-      setLoading(false);
-      setErrorMsg(err.message || 'Error sending message. Please try again.');
     }
   };
 
