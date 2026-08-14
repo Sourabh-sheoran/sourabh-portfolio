@@ -65,29 +65,28 @@ ${message}
           <p style="white-space: pre-wrap; color: #e2e8f0;">${message}</p>
         </div>
         <footer style="margin-top: 25px; font-size: 12px; color: #64748b;">
-          This notification was sent automatically from your portfolio website on Vercel.
+          This notification was sent automatically from your portfolio website.
         </footer>
       </div>
     `;
 
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = process.env.SMTP_PORT || 587;
+    // Respond INSTANTLY to visitor (< 50ms)
+    res.status(200).json({
+      success: true,
+      message: 'Your message has been sent successfully!'
+    });
+
     const smtpUser = process.env.SMTP_USER || 'sourabhsheoran695@gmail.com';
     const smtpPass = process.env.SMTP_PASS || 'yxfauxswyxdaepph';
 
-    if (smtpHost && smtpUser && smtpPass) {
+    if (smtpUser && smtpPass) {
       try {
         const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: Number(smtpPort),
-          secure: Number(smtpPort) === 465,
+          service: 'gmail',
           auth: {
             user: smtpUser,
             pass: smtpPass
-          },
-          connectionTimeout: 8000,
-          greetingTimeout: 8000,
-          socketTimeout: 8000
+          }
         });
 
         await transporter.sendMail({
@@ -99,21 +98,18 @@ ${message}
           html: htmlContent
         });
 
-        console.log(`✅ Email successfully dispatched via Nodemailer on Vercel to ${recipientEmail}`);
+        console.log(`✅ Background email successfully dispatched to ${recipientEmail}`);
       } catch (mailErr) {
-        console.error('Nodemailer dispatch error on Vercel:', mailErr.message);
+        console.error('Background Nodemailer error:', mailErr.message);
       }
     }
-
-    return res.status(200).json({
-      success: true,
-      message: 'Your message has been sent successfully!'
-    });
   } catch (error) {
     console.error('Vercel contact function outer error:', error);
-    return res.status(200).json({
-      success: true,
-      message: 'Your message has been received!'
-    });
+    if (!res.headersSent) {
+      return res.status(200).json({
+        success: true,
+        message: 'Your message has been received!'
+      });
+    }
   }
 }

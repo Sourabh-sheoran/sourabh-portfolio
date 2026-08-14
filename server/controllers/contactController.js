@@ -3,7 +3,7 @@ import { getDbData, saveDbData } from '../db.js';
 
 export const handleContactForm = async (req, res) => {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message } = req.body || {};
 
     if (!name || !email || !message) {
       return res.status(400).json({ error: 'Name, email, and message are required.' });
@@ -15,7 +15,7 @@ export const handleContactForm = async (req, res) => {
       timeStyle: 'medium'
     });
 
-    // Save message to persistent database
+    // Save message to persistent database immediately
     const dbData = getDbData();
     if (!dbData.messages) dbData.messages = [];
     const newMessage = {
@@ -48,7 +48,7 @@ ${message}
 `;
 
     const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px; background-color: #0f172a; color: #f8fafc;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #0f172a; color: #f8fafc;">
         <h2 style="color: #38bdf8; border-bottom: 2px solid #0284c7; padding-bottom: 8px;">New Portfolio Contact Submission</h2>
         <p style="margin-top: 15px;"><strong>Visitor Name:</strong> ${name}</p>
         <p><strong>Visitor Email:</strong> <a href="mailto:${email}" style="color: #38bdf8;">${email}</a></p>
@@ -68,52 +68,48 @@ ${message}
     console.log(textContent);
     console.log('--------------------------------------------------\n');
 
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = process.env.SMTP_PORT || 587;
-    const smtpUser = process.env.SMTP_USER || 'sourabhsheoran695@gmail.com';
-    const smtpPass = process.env.SMTP_PASS || 'yxfauxswyxdaepph';
-
-    if (smtpHost && smtpUser && smtpPass) {
-      try {
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: Number(smtpPort),
-          secure: Number(smtpPort) === 465,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass
-          },
-          connectionTimeout: 10000,
-          greetingTimeout: 10000,
-          socketTimeout: 10000
-        });
-
-        await transporter.sendMail({
-          from: `"${name} (Portfolio)" <${smtpUser}>`,
-          replyTo: email,
-          to: recipientEmail,
-          subject: emailSubject,
-          text: textContent,
-          html: htmlContent
-        });
-
-        console.log(`✅ Email successfully dispatched via Nodemailer to ${recipientEmail}`);
-      } catch (mailErr) {
-        console.error('Nodemailer dispatch error:', mailErr.message);
-      }
-    } else {
-      console.log('⚠️ SMTP credentials (SMTP_HOST, SMTP_USER, SMTP_PASS) not fully set in .env.');
-      console.log('Message logged locally to console. Set SMTP credentials in .env to receive live email inbox dispatches.');
-    }
-
-    return res.status(200).json({
+    // Respond INSTANTLY to client (< 50ms) so website is lighting fast
+    res.status(200).json({
       success: true,
       message: 'Your message has been sent successfully!'
     });
+
+    // Background Email Dispatch via Nodemailer (non-blocking)
+    const smtpUser = process.env.SMTP_USER || 'sourabhsheoran695@gmail.com';
+    const smtpPass = process.env.SMTP_PASS || 'yxfauxswyxdaepph';
+
+    if (smtpUser && smtpPass) {
+      setTimeout(async () => {
+        try {
+          const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: smtpUser,
+              pass: smtpPass
+            }
+          });
+
+          await transporter.sendMail({
+            from: `"${name} (Portfolio)" <${smtpUser}>`,
+            replyTo: email,
+            to: recipientEmail,
+            subject: emailSubject,
+            text: textContent,
+            html: htmlContent
+          });
+
+          console.log(`✅ Background email successfully dispatched to ${recipientEmail}`);
+        } catch (mailErr) {
+          console.error('Background Nodemailer error:', mailErr.message);
+        }
+      }, 0);
+    }
   } catch (error) {
     console.error('Contact form submission error:', error);
-    return res.status(500).json({
-      error: 'Failed to send message. Please try again later.'
-    });
+    if (!res.headersSent) {
+      return res.status(500).json({
+        error: 'Failed to send message. Please try again later.'
+      });
+    }
   }
 };
