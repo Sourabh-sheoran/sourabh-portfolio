@@ -31,7 +31,7 @@ export const handleContactForm = async (req, res) => {
     saveDbData(dbData);
 
     const recipientEmail = 'sourabhsheoran695@gmail.com';
-    const emailSubject = `[Portfolio Contact] ${subject || 'New Message from ' + name}`;
+    const emailSubject = `🔔 [PORTFOLIO INQUIRY] New Message from ${name}: ${subject || 'Direct Contact'}`;
 
     const textContent = `
 NEW PORTFOLIO CONTACT FORM SUBMISSION
@@ -49,7 +49,7 @@ ${message}
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #0f172a; color: #f8fafc;">
-        <h2 style="color: #38bdf8; border-bottom: 2px solid #0284c7; padding-bottom: 8px;">New Portfolio Contact Submission</h2>
+        <h2 style="color: #38bdf8; border-bottom: 2px solid #0284c7; padding-bottom: 8px;">🔔 New Portfolio Contact Submission</h2>
         <p style="margin-top: 15px;"><strong>Visitor Name:</strong> ${name}</p>
         <p><strong>Visitor Email:</strong> <a href="mailto:${email}" style="color: #38bdf8;">${email}</a></p>
         <p><strong>Date & Time:</strong> ${timestamp}</p>
@@ -68,13 +68,13 @@ ${message}
     console.log(textContent);
     console.log('--------------------------------------------------\n');
 
-    // Respond INSTANTLY to client (< 50ms) so website is lighting fast
+    // Respond INSTANTLY to client (< 50ms)
     res.status(200).json({
       success: true,
       message: 'Your message has been sent successfully!'
     });
 
-    // Background Email Dispatch via Nodemailer (non-blocking)
+    // Background Email Dispatch via Nodemailer with matching authenticated from address
     const smtpUser = process.env.SMTP_USER || 'sourabhsheoran695@gmail.com';
     const smtpPass = process.env.SMTP_PASS || 'yxfauxswyxdaepph';
 
@@ -90,7 +90,7 @@ ${message}
           });
 
           await transporter.sendMail({
-            from: `"${name} (Portfolio Inquiry)" <sourabhsheoran.portfolio@gmail.com>`,
+            from: `"Portfolio Notification (${name})" <${smtpUser}>`,
             replyTo: email,
             to: recipientEmail,
             subject: emailSubject,

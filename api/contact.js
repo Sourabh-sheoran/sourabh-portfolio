@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     });
 
     const recipientEmail = 'sourabhsheoran695@gmail.com';
-    const emailSubject = `[Portfolio Contact] ${subject || 'New Message from ' + name}`;
+    const emailSubject = `🔔 [PORTFOLIO INQUIRY] New Message from ${name}: ${subject || 'Direct Contact'}`;
 
     const textContent = `
 NEW PORTFOLIO CONTACT FORM SUBMISSION
@@ -55,7 +55,7 @@ ${message}
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #0f172a; color: #f8fafc;">
-        <h2 style="color: #38bdf8; border-bottom: 2px solid #0284c7; padding-bottom: 8px;">New Portfolio Contact Submission</h2>
+        <h2 style="color: #38bdf8; border-bottom: 2px solid #0284c7; padding-bottom: 8px;">🔔 New Portfolio Contact Submission</h2>
         <p style="margin-top: 15px;"><strong>Visitor Name:</strong> ${name}</p>
         <p><strong>Visitor Email:</strong> <a href="mailto:${email}" style="color: #38bdf8;">${email}</a></p>
         <p><strong>Date & Time:</strong> ${timestamp}</p>
@@ -90,7 +90,7 @@ ${message}
         });
 
         await transporter.sendMail({
-          from: `"${name} (Portfolio Inquiry)" <sourabhsheoran.portfolio@gmail.com>`,
+          from: `"Portfolio Notification (${name})" <${smtpUser}>`,
           replyTo: email,
           to: recipientEmail,
           subject: emailSubject,
