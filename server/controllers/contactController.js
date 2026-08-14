@@ -68,48 +68,43 @@ ${message}
     console.log(textContent);
     console.log('--------------------------------------------------\n');
 
-    // Respond INSTANTLY to client (< 50ms)
-    res.status(200).json({
-      success: true,
-      message: 'Your message has been sent successfully!'
-    });
-
-    // Background Email Dispatch via Nodemailer with matching authenticated from address
+    // Synchronous Email Dispatch via Nodemailer (guarantees completion before HTTP response ends)
     const smtpUser = process.env.SMTP_USER || 'sourabhsheoran695@gmail.com';
     const smtpPass = process.env.SMTP_PASS || 'yxfauxswyxdaepph';
 
     if (smtpUser && smtpPass) {
-      setTimeout(async () => {
-        try {
-          const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user: smtpUser,
-              pass: smtpPass
-            }
-          });
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: smtpUser,
+            pass: smtpPass
+          }
+        });
 
-          await transporter.sendMail({
-            from: `"Portfolio Notification (${name})" <${smtpUser}>`,
-            replyTo: email,
-            to: recipientEmail,
-            subject: emailSubject,
-            text: textContent,
-            html: htmlContent
-          });
+        await transporter.sendMail({
+          from: `"Portfolio Notification (${name})" <${smtpUser}>`,
+          replyTo: email,
+          to: recipientEmail,
+          subject: emailSubject,
+          text: textContent,
+          html: htmlContent
+        });
 
-          console.log(`✅ Background email successfully dispatched to ${recipientEmail}`);
-        } catch (mailErr) {
-          console.error('Background Nodemailer error:', mailErr.message);
-        }
-      }, 0);
+        console.log(`✅ Email successfully dispatched via Nodemailer to ${recipientEmail}`);
+      } catch (mailErr) {
+        console.error('Nodemailer dispatch error:', mailErr.message);
+      }
     }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Your message has been sent successfully!'
+    });
   } catch (error) {
     console.error('Contact form submission error:', error);
-    if (!res.headersSent) {
-      return res.status(500).json({
-        error: 'Failed to send message. Please try again later.'
-      });
-    }
+    return res.status(500).json({
+      error: 'Failed to send message. Please try again later.'
+    });
   }
 };

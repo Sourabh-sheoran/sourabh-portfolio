@@ -70,12 +70,6 @@ ${message}
       </div>
     `;
 
-    // Respond INSTANTLY to visitor (< 50ms)
-    res.status(200).json({
-      success: true,
-      message: 'Your message has been sent successfully!'
-    });
-
     const smtpUser = process.env.SMTP_USER || 'sourabhsheoran695@gmail.com';
     const smtpPass = process.env.SMTP_PASS || 'yxfauxswyxdaepph';
 
@@ -98,18 +92,20 @@ ${message}
           html: htmlContent
         });
 
-        console.log(`✅ Background email successfully dispatched to ${recipientEmail}`);
+        console.log(`✅ Email successfully dispatched via Nodemailer to ${recipientEmail}`);
       } catch (mailErr) {
-        console.error('Background Nodemailer error:', mailErr.message);
+        console.error('Nodemailer dispatch error:', mailErr.message);
       }
     }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Your message has been sent successfully!'
+    });
   } catch (error) {
     console.error('Vercel contact function outer error:', error);
-    if (!res.headersSent) {
-      return res.status(200).json({
-        success: true,
-        message: 'Your message has been received!'
-      });
-    }
+    return res.status(500).json({
+      error: 'Failed to send message. Please try again later.'
+    });
   }
 }
